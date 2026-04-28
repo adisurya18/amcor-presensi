@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AMCOR UMM — Presensi</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --border: #e8e4dc;
+  --text: #1a1714;
+  --muted: #8a8278;
+  --accent: #b5451b;
+  --accent-light: #fdf0ec;
+  --accent2: #1a4d8f;
+  --accent2-light: #eef3fb;
+  --green: #1a6b3c;
+  --green-light: #edf7f2;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* PAGE SYSTEM */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* ── LANDING ── */
+.landing { align-items: center; justify-content: center; padding: 2rem 1.5rem; text-align: center; }
+.landing-logo { width: 72px; height: 72px; background: var(--accent); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.landing-logo span { font-family: var(--mono); color: white; font-size: 18px; font-weight: 500; letter-spacing: -0.5px; }
+.landing h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+.landing p { color: var(--muted); font-size: 14px; margin-bottom: 2.5rem; }
+.landing-cards { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 360px; margin: 0 auto; }
+.landing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; text-align: left; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 14px; }
+.landing-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+.landing-card-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.landing-card-icon.red { background: var(--accent-light); }
+.landing-card-icon.blue { background: var(--accent2-light); }
+.landing-card-text strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.landing-card-text span { font-size: 12px; color: var(--muted); }
+
+/* ── SHARED LAYOUT ── */
+.topbar { display: flex; align-items: center; gap: 12px; padding: 1rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+.topbar-back { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.topbar-back:hover { background: var(--bg); }
+.topbar-title { font-size: 15px; font-weight: 600; }
+.topbar-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.topbar-right { margin-left: auto; }
+.content { flex: 1; padding: 1.25rem; max-width: 600px; width: 100%; margin: 0 auto; }
+
+/* ── TABS ── */
+.tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; margin-bottom: 1.25rem; gap: 3px; }
+.tab { flex: 1; padding: 8px 4px; border: none; background: transparent; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
+.tab.active { background: var(--accent); color: white; }
+
+/* ── CARDS & FIELDS ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 14px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
+.field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--sans); background: var(--surface); color: var(--text); transition: all 0.15s; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(181,69,27,0.1); }
+.row { display: flex; gap: 8px; }
+.row .field { flex: 1; }
+
+/* ── BUTTONS ── */
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all 0.15s; border: none; }
+.btn-accent { background: var(--accent); color: white; }
+.btn-accent:hover { background: #9a3a17; }
+.btn-accent:active { transform: scale(0.98); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--bg); }
+.btn-full { width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* ── STATS ── */
+.stats { display: grid; gap: 10px; margin-bottom: 1.25rem; }
+.stats-3 { grid-template-columns: repeat(3,1fr); }
+.stats-2 { grid-template-columns: repeat(2,1fr); }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+.stat-num { font-size: 28px; font-weight: 600; color: var(--accent); font-family: var(--mono); line-height: 1; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ── CHECK-IN BOX ── */
+.checkin-box { text-align: center; padding: 1rem 0 0.5rem; }
+.checkin-input-big { font-size: 24px; font-family: var(--mono); text-align: center; padding: 14px; letter-spacing: 3px; max-width: 240px; font-weight: 500; }
+.checkin-result { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5; }
+.checkin-result.success { background: var(--green-light); color: var(--green); border: 1px solid #a7d9be; }
+.checkin-result.error { background: var(--accent-light); color: var(--accent); border: 1px solid #f0b8a7; }
+
+/* ── ROWS ── */
+.list-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--bg); }
+.list-row:last-child { border-bottom: none; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); flex-shrink: 0; font-family: var(--mono); }
+.avatar.blue { background: var(--accent2-light); color: var(--accent2); }
+.list-info { flex: 1; min-width: 0; }
+.list-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.id-badge { font-family: var(--mono); font-size: 11px; background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; color: var(--muted); white-space: nowrap; }
+.log-time { font-size: 11px; color: var(--muted); text-align: right; line-height: 1.4; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+/* ── INFO BOX ── */
+.info-box { background: var(--accent2-light); border: 1px solid #c5d8f5; border-radius: 10px; padding: 12px 14px; margin-bottom: 1rem; }
+.info-box-title { font-size: 12px; font-weight: 600; color: var(--accent2); margin-bottom: 4px; }
+.info-box-body { font-size: 12px; color: #2a5a9f; line-height: 1.5; }
+
+/* ── SETUP PAGE ── */
+.setup-step { display: flex; gap: 12px; margin-bottom: 1.25rem; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-body strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.step-body p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.code-block { background: #1a1714; color: #f0ebe3; font-family: var(--mono); font-size: 11px; padding: 12px; border-radius: 8px; margin-top: 8px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+/* ── ADMIN PASSWORD ── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; display: none; }
+.overlay.show { display: flex; }
+.overlay-card { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 340px; }
+.overlay-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.overlay-sub { font-size: 12px; color: var(--muted); margin-bottom: 1.25rem; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 200; white-space: nowrap; }
+.toast.show { opacity: 1; }
+
+/* ── LOADING ── */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay { position: fixed; inset: 0; background: rgba(245,243,239,0.8); display: flex; align-items: center; justify-content: center; z-index: 150; display: none; }
+.loading-overlay.show { display: flex; }
+.loading-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 2rem; text-align: center; font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div class="page active" id="page-landing">
+  <div class="landing">
+    <div class="landing-logo"><span>AC</span></div>
+    <h1>American Corner UMM</h1>
+    <p>Sistem presensi pengunjung terpusat</p>
+    <div class="landing-cards">
+      <div class="landing-card" onclick="showPage('page-checkin')">
+        <div class="landing-card-icon red">✅</div>
+        <div class="landing-card-text">
+          <strong>Check-in</strong>
+          <span>Sudah punya nomor member? Check-in di sini</span>
+        </div>
+      </div>
+      <div class="landing-card" onclick="showPage('page-register')">
+        <div class="landing-card-icon blue">📋</div>
+        <div class="landing-card-text">
+          <strong>Daftar member baru</strong>
+          <span>Belum terdaftar? Daftar sekarang</span>
+        </div>
+      </div>
+      <div class="landing-card" onclick="requireAdmin()">
+        <div class="landing-card-icon" style="background:#f0f0ee;">🔐</div>
+        <div class="landing-card-text">
+          <strong>Admin</strong>
+          <span>Lihat semua data & riwayat check-in</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:2rem; font-size:11px; color:var(--muted);">Admin AMCOR? <a href="#" onclick="requireSetup(); return false;" style="color:var(--accent2);">Login admin →</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════ CHECK-IN ═══════════════ -->
+<div class="page" id="page-checkin">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-landing')">←</button>
+    <div><div class="topbar-title">Check-in</div><div class="topbar-sub">Masukkan nomor member atau NIM</div></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="checkin-box">
+        <div class="card-title">Nomor member atau NIM</div>
+        <input type="text" class="field input checkin-input-big" id="checkin-val" placeholder="AMC0001"
+          oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter')doCheckin()" style="border:1px solid var(--border);border-radius:8px;width:100%;max-width:280px;font-family:var(--mono);"/>
+        <br><br>
+        <button class="btn btn-accent" onclick="doCheckin()" id="btn-checkin">Check-in sekarang</button>
+        <div class="checkin-result" id="checkin-result"></div>
+      </div>
+    </div>
+    <div class="card-title">Check-in terakhir hari ini</div>
+    <div class="card" style="padding:0.75rem 1.25rem" id="recent-log">
+      <div class="empty"><div class="empty-icon">🕐</div>Belum ada check-in hari ini</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ REGISTER ═══════════════ -->
+<div class="page" id="page-register">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-landing')">←</button>
+    <div><div class="topbar-title">Daftar Member</div><div class="topbar-sub">Isi data lengkap kamu</div></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Data diri</div>
+      <div class="field"><label>Nama lengkap</label><input type="text" id="reg-nama" placeholder="Budi Santoso"/></div>
+      <div class="row">
+        <div class="field"><label>NIM / No. identitas</label><input type="text" id="reg-nim" placeholder="2021101603xxxxx"/></div>
+        <div class="field"><label>Institusi</label><input type="text" id="reg-inst" placeholder="UMM"/></div>
+      </div>
+      <div class="field"><label>Jurusan / Prodi</label><input type="text" id="reg-jurusan" placeholder="Teknik Informatika"/></div>
+      <div class="field"><label>No. HP (WhatsApp)</label><input type="tel" id="reg-hp" placeholder="08xxxxxxxxxx"/></div>
+      <br>
+      <button class="btn btn-accent btn-full" onclick="registerMember()" id="btn-register">Daftarkan saya</button>
+      <div id="reg-result" style="margin-top:10px;font-size:12px;"></div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-title">ℹ️ Setelah mendaftar</div>
+      <div class="info-box-body">Kamu akan mendapat nomor member (contoh: <strong>AMC0001</strong>). Simpan nomor ini untuk check-in setiap kali berkunjung ke AMCOR UMM.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ADMIN ═══════════════ -->
+<div class="page" id="page-admin">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-landing')">←</button>
+    <div><div class="topbar-title">Admin Dashboard</div><div class="topbar-sub">American Corner UMM</div></div>
+  </div>
+  <div class="content">
+    <div class="tabs" id="admin-tabs">
+      <button class="tab active" onclick="adminTab('overview')">Overview</button>
+      <button class="tab" onclick="adminTab('members')">Member</button>
+      <button class="tab" onclick="adminTab('log')">Riwayat</button>
+      <button class="tab" onclick="adminTab('add')">+ Tambah</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div id="admin-overview">
+      <div class="stats stats-3" id="admin-stats">
+        <div class="stat"><div class="stat-num" id="s-today">–</div><div class="stat-label">Hari ini</div></div>
+        <div class="stat"><div class="stat-num" id="s-week">–</div><div class="stat-label">Minggu ini</div></div>
+        <div class="stat"><div class="stat-num" id="s-members">–</div><div class="stat-label">Total member</div></div>
+      </div>
+      <div class="card-title">Check-in terbaru</div>
+      <div class="card" style="padding:0.75rem 1.25rem" id="admin-recent">
+        <div class="empty"><div class="empty-icon">📊</div>Memuat data...</div>
+      </div>
+      <br>
+      <button class="btn btn-outline btn-full" onclick="exportCSV()">⬇ Download CSV semua riwayat</button>
+    </div>
+
+    <!-- MEMBERS -->
+    <div id="admin-members" style="display:none">
+      <div class="card" style="padding:0.75rem 1.25rem" id="admin-members-list">
+        <div class="empty"><div class="empty-icon">👥</div>Memuat data member...</div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div id="admin-log" style="display:none">
+      <div class="card" style="padding:0.75rem 1.25rem" id="admin-log-list">
+        <div class="empty"><div class="empty-icon">📋</div>Memuat riwayat...</div>
+      </div>
+    </div>
+
+    <!-- ADD MEMBER (ADMIN) -->
+    <div id="admin-add" style="display:none">
+      <div class="card">
+        <div class="card-title">Tambah member (admin)</div>
+        <div class="field"><label>Nama lengkap</label><input type="text" id="a-nama" placeholder="Budi Santoso"/></div>
+        <div class="row">
+          <div class="field"><label>NIM</label><input type="text" id="a-nim" placeholder="2021xxxxx"/></div>
+          <div class="field"><label>Institusi</label><input type="text" id="a-inst" placeholder="UMM"/></div>
+        </div>
+        <div class="field"><label>Jurusan</label><input type="text" id="a-jurusan" placeholder="Teknik Informatika"/></div>
+        <div class="field"><label>No. HP</label><input type="tel" id="a-hp" placeholder="08xxxxxxxxxx"/></div>
+        <br>
+        <button class="btn btn-accent" onclick="adminAddMember()" id="btn-admin-add">Tambahkan</button>
+        <div id="a-result" style="margin-top:10px;font-size:12px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SETUP ═══════════════ -->
+<div class="page" id="page-setup">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-landing')">←</button>
+    <div><div class="topbar-title">Panduan Setup</div><div class="topbar-sub">Hubungkan ke Google Sheets</div></div>
+  </div>
+  <div class="content">
+    <div class="info-box" style="margin-bottom:1.25rem">
+      <div class="info-box-title">Sebelum mulai</div>
+      <div class="info-box-body">Setup ini hanya dilakukan sekali. Setelah selesai, semua data member & check-in tersimpan terpusat di Google Sheets milikmu.</div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Buat Google Sheets baru</strong>
+        <p>Buka <a href="https://sheets.google.com" target="_blank" style="color:var(--accent2)">sheets.google.com</a> → buat spreadsheet baru → beri nama <em>AMCOR Presensi</em>.</p>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Buka Apps Script</strong>
+        <p>Di Google Sheets: menu <strong>Extensions → Apps Script</strong> → hapus semua kode yang ada → paste kode berikut:</p>
+        <div class="code-block" id="script-code">Klik tombol di bawah untuk lihat script</div>
+        <br>
+        <button class="btn btn-outline btn-sm" onclick="showScript()">Tampilkan script</button>
+        <button class="btn btn-outline btn-sm" style="margin-left:6px" onclick="copyScript()">📋 Copy script</button>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Deploy sebagai Web App</strong>
+        <p>Klik <strong>Deploy → New deployment</strong> → pilih type <strong>Web app</strong> → Execute as: <em>Me</em> → Who has access: <em>Anyone</em> → Klik <strong>Deploy</strong> → Authorize → Copy URL yang muncul.</p>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Tempel URL di bawah ini</strong>
+        <div class="field" style="margin-top:8px"><input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/xxx/exec" /></div>
+        <button class="btn btn-accent btn-sm" onclick="saveSheetURL()">Simpan URL</button>
+        <div id="url-result" style="margin-top:8px;font-size:12px;"></div>
+      </div>
+    </div>
+
+
+
+    <div class="card" style="background:var(--green-light);border-color:#a7d9be;">
+      <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:4px;">✅ Sudah setup?</div>
+      <div style="font-size:12px;color:#1a5a33;">Kembali ke halaman utama dan coba daftarkan member pertama!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ OVERLAYS ═══════════════ -->
+<div class="overlay" id="overlay-admin">
+  <div class="overlay-card">
+    <div class="overlay-title">🔐 Login Admin</div>
+    <div class="overlay-sub">Masukkan password admin untuk melanjutkan</div>
+    <div class="field"><input type="password" id="admin-pw-input" placeholder="Password admin" onkeydown="if(event.key==='Enter')checkAdmin()"/></div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-accent" onclick="checkAdmin()">Masuk</button>
+      <button class="btn btn-outline" onclick="closeOverlay('overlay-admin')">Batal</button>
+    </div>
+    <div id="admin-pw-err" style="margin-top:8px;font-size:12px;color:var(--accent);"></div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-box"><div class="spinner" style="border-top-color:var(--accent);border-color:var(--border);display:inline-block;width:20px;height:20px;border-radius:50%;border-width:2px;border-style:solid;animation:spin 0.6s linear infinite;"></div> Menghubungi server...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+let SHEET_URL = localStorage.getItem('amcor_sheet_url') || 'https://script.google.com/macros/s/AKfycbxDKK0YLA1hTtsB43-Xx2RSlcHC31lKcGBt78w8xUcMGlSZN4Mjz9sHq_YfyXHgRGqvgQ/exec';
+const ADMIN_PW = 'amcoraye';
+let cachedMembers = [];
+let cachedLog = [];
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'page-admin') loadAdminData();
+  if (id === 'page-checkin') loadRecentLog();
+}
+
+function requireAdmin() {
+  document.getElementById('admin-pw-input').value = '';
+  document.getElementById('admin-pw-err').textContent = '';
+  document.getElementById('overlay-admin').dataset.target = 'admin';
+  document.getElementById('overlay-admin').classList.add('show');
+}
+
+function requireSetup() {
+  document.getElementById('admin-pw-input').value = '';
+  document.getElementById('admin-pw-err').textContent = '';
+  document.getElementById('overlay-admin').dataset.target = 'setup';
+  document.getElementById('overlay-admin').classList.add('show');
+}
+
+function checkAdmin() {
+  const pw = document.getElementById('admin-pw-input').value;
+  const target = document.getElementById('overlay-admin').dataset.target || 'admin';
+  if (pw === ADMIN_PW) {
+    closeOverlay('overlay-admin');
+    showPage('page-' + target);
+  } else {
+    document.getElementById('admin-pw-err').textContent = 'Password salah.';
+  }
+}
+
+function closeOverlay(id) { document.getElementById(id).classList.remove('show'); }
+
+function adminTab(tab) {
+  ['overview','members','log','add'].forEach(t => {
+    document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#admin-tabs .tab').forEach((t,i) => {
+    t.classList.toggle('active', ['overview','members','log','add'][i]===tab);
+  });
+  if (tab==='members') renderAdminMembers();
+  if (tab==='log') renderAdminLog();
+}
+
+// ── TOAST ──
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── LOADING ──
+function setLoading(on) {
+  document.getElementById('loading').classList.toggle('show', on);
+}
+
+// ── HELPERS ──
+function today() { return new Date().toLocaleDateString('id-ID'); }
+function nowStr() { return new Date().toLocaleString('id-ID',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'}); }
+function initials(n) { return n.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
+function weekStart() { const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d; }
+function padId(n) { return 'AMC' + String(n).padStart(4,'0'); }
+
+// ── API CALL ──
+async function api(action, data={}) {
+  if (!SHEET_URL) { toast('⚠ Belum setup URL Google Sheets!'); throw new Error('No URL'); }
+  const params = new URLSearchParams({ action, ...data });
+  const res = await fetch(SHEET_URL + '?' + params.toString());
+  const json = await res.json();
+  return json;
+}
+
+// ── REGISTER ──
+async function registerMember() {
+  const nama = document.getElementById('reg-nama').value.trim();
+  const nim = document.getElementById('reg-nim').value.trim();
+  const inst = document.getElementById('reg-inst').value.trim();
+  const jurusan = document.getElementById('reg-jurusan').value.trim();
+  const hp = document.getElementById('reg-hp').value.trim();
+  const res = document.getElementById('reg-result');
+  if (!nama||!nim||!inst||!jurusan||!hp) { res.style.color='var(--accent)'; res.textContent='Semua field wajib diisi.'; return; }
+  const btn = document.getElementById('btn-register');
+  btn.innerHTML = '<span class="spinner"></span>Mendaftarkan...'; btn.disabled = true;
+  setLoading(true);
+  try {
+    const r = await api('register', {nama,nim,inst,jurusan,hp});
+    if (r.success) {
+      res.style.color='var(--green)';
+      res.innerHTML = `✅ Berhasil! Nomor member kamu: <strong style="font-family:var(--mono);font-size:16px">${r.id}</strong><br><span style="color:var(--muted)">Simpan nomor ini untuk check-in berikutnya.</span>`;
+      ['reg-nama','reg-nim','reg-inst','reg-jurusan','reg-hp'].forEach(id => document.getElementById(id).value='');
+      toast('Selamat datang, ' + nama + '! ID: ' + r.id);
+    } else {
+      res.style.color='var(--accent)'; res.textContent = r.message || 'Gagal mendaftar. Coba lagi.';
+    }
+  } catch(e) { res.style.color='var(--accent)'; res.textContent='Koneksi gagal. Periksa setup.'; }
+  btn.innerHTML = 'Daftarkan saya'; btn.disabled = false;
+  setLoading(false);
+}
+
+// ── CHECK-IN ──
+async function doCheckin() {
+  const val = document.getElementById('checkin-val').value.trim().toUpperCase();
+  const res = document.getElementById('checkin-result');
+  if (!val) return;
+  const btn = document.getElementById('btn-checkin');
+  btn.innerHTML = '<span class="spinner"></span>Memproses...'; btn.disabled = true;
+  setLoading(true);
+  try {
+    const r = await api('checkin', {value: val});
+    if (r.success) {
+      res.className = 'checkin-result success'; res.style.display='block';
+      res.innerHTML = `<strong>Selamat datang, ${r.nama}! 👋</strong><br>${r.inst} · ${r.jurusan}<br><span style="font-family:var(--mono);font-size:12px;opacity:0.8">${r.id}</span>`;
+      document.getElementById('checkin-val').value = '';
+      loadRecentLog();
+      setTimeout(() => { res.style.display='none'; }, 6000);
+    } else {
+      res.className = 'checkin-result error'; res.style.display='block';
+      res.textContent = r.message || 'Nomor tidak ditemukan.';
+    }
+  } catch(e) { res.className='checkin-result error'; res.style.display='block'; res.textContent='Koneksi gagal.'; }
+  btn.innerHTML = 'Check-in sekarang'; btn.disabled = false;
+  setLoading(false);
+}
+
+// ── LOAD RECENT LOG ──
+async function loadRecentLog() {
+  try {
+    const r = await api('getRecentLog');
+    const el = document.getElementById('recent-log');
+    if (!r.data || !r.data.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🕐</div>Belum ada check-in hari ini</div>'; return; }
+    el.innerHTML = r.data.slice(0,6).map(l => `
+      <div class="list-row">
+        <div class="avatar">${initials(l.nama)}</div>
+        <div class="list-info"><div class="list-name">${l.nama}</div><div class="list-sub">${l.nim} · ${l.jurusan}</div></div>
+        <div style="text-align:right"><span class="id-badge">${l.id}</span><div class="log-time" style="margin-top:3px">${l.waktu}</div></div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── ADMIN DATA ──
+async function loadAdminData() {
+  setLoading(true);
+  try {
+    const r = await api('getAll');
+    cachedMembers = r.members || [];
+    cachedLog = r.log || [];
+    const t = today(); const ws = weekStart();
+    const todayC = cachedLog.filter(l=>l.tanggal===t).length;
+    const weekC = cachedLog.filter(l=>new Date(l.ts)>=ws).length;
+    document.getElementById('s-today').textContent = todayC;
+    document.getElementById('s-week').textContent = weekC;
+    document.getElementById('s-members').textContent = cachedMembers.length;
+    // recent
+    const el = document.getElementById('admin-recent');
+    const recent = cachedLog.slice(-8).reverse();
+    if (!recent.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>Belum ada data</div>'; }
+    else el.innerHTML = recent.map(l=>`
+      <div class="list-row">
+        <div class="avatar blue">${initials(l.nama)}</div>
+        <div class="list-info"><div class="list-name">${l.nama}</div><div class="list-sub">${l.nim} · ${l.jurusan}</div></div>
+        <div style="text-align:right"><span class="id-badge">${l.id}</span><div class="log-time" style="margin-top:3px">${l.waktu}<br>${l.tanggal}</div></div>
+      </div>`).join('');
+  } catch(e) { toast('Gagal memuat data'); }
+  setLoading(false);
+}
+
+function renderAdminMembers() {
+  const el = document.getElementById('admin-members-list');
+  if (!cachedMembers.length) { el.innerHTML='<div class="empty"><div class="empty-icon">👥</div>Belum ada member</div>'; return; }
+  el.innerHTML = cachedMembers.map(m=>`
+    <div class="list-row">
+      <div class="avatar">${initials(m.nama)}</div>
+      <div class="list-info"><div class="list-name">${m.nama}</div><div class="list-sub">${m.nim} · ${m.inst} · ${m.jurusan}</div><div class="list-sub" style="margin-top:1px">📱 ${m.hp}</div></div>
+      <span class="id-badge">${m.id}</span>
+    </div>`).join('');
+}
+
+function renderAdminLog() {
+  const el = document.getElementById('admin-log-list');
+  if (!cachedLog.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>Belum ada check-in</div>'; return; }
+  el.innerHTML = cachedLog.slice().reverse().map(l=>`
+    <div class="list-row">
+      <div class="avatar blue">${initials(l.nama)}</div>
+      <div class="list-info"><div class="list-name">${l.nama}</div><div class="list-sub">${l.nim} · ${l.inst}</div></div>
+      <div style="text-align:right"><span class="id-badge">${l.id}</span><div class="log-time" style="margin-top:3px">${l.waktu}<br>${l.tanggal}</div></div>
+    </div>`).join('');
+}
+
+async function adminAddMember() {
+  const nama=document.getElementById('a-nama').value.trim();
+  const nim=document.getElementById('a-nim').value.trim();
+  const inst=document.getElementById('a-inst').value.trim();
+  const jurusan=document.getElementById('a-jurusan').value.trim();
+  const hp=document.getElementById('a-hp').value.trim();
+  const res=document.getElementById('a-result');
+  if(!nama||!nim||!inst||!jurusan||!hp){res.style.color='var(--accent)';res.textContent='Semua field wajib diisi.';return;}
+  const btn=document.getElementById('btn-admin-add');
+  btn.innerHTML='<span class="spinner"></span>Menyimpan...'; btn.disabled=true;
+  setLoading(true);
+  try {
+    const r=await api('register',{nama,nim,inst,jurusan,hp});
+    if(r.success){
+      res.style.color='var(--green)';
+      res.innerHTML=`✅ Ditambahkan! ID: <strong style="font-family:var(--mono)">${r.id}</strong>`;
+      ['a-nama','a-nim','a-inst','a-jurusan','a-hp'].forEach(id=>document.getElementById(id).value='');
+      loadAdminData();
+    } else { res.style.color='var(--accent)'; res.textContent=r.message||'Gagal.'; }
+  } catch(e){res.style.color='var(--accent)';res.textContent='Koneksi gagal.';}
+  btn.innerHTML='Tambahkan'; btn.disabled=false;
+  setLoading(false);
+}
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  if(!cachedLog.length){toast('Belum ada data');return;}
+  const header='ID,Nama,NIM,Institusi,Jurusan,Waktu,Tanggal';
+  const rows=cachedLog.map(l=>[l.id,`"${l.nama}"`,l.nim,`"${l.inst}"`,`"${l.jurusan}"`,l.waktu,l.tanggal].join(','));
+  const csv=[header,...rows].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='presensi-amcor-'+today().replace(/\//g,'-')+'.csv';
+  a.click();
+  toast('CSV diunduh!');
+}
+
+// ── SETUP ──
+function saveSheetURL() {
+  const url = document.getElementById('sheets-url').value.trim();
+  const res = document.getElementById('url-result');
+  if (!url.startsWith('https://script.google.com')) { res.style.color='var(--accent)'; res.textContent='URL tidak valid.'; return; }
+  SHEET_URL = url; localStorage.setItem('amcor_sheet_url', url);
+  res.style.color='var(--green)'; res.textContent='✅ URL tersimpan!';
+  toast('URL Google Sheets disimpan');
+}
+
+
+
+// ── SCRIPT DISPLAY ──
+const APPS_SCRIPT = `function doGet(e) {
+  const action = e.parameter.action;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Pastikan sheet ada
+  let sheetM = ss.getSheetByName('Members') || ss.insertSheet('Members');
+  let sheetL = ss.getSheetByName('Log') || ss.insertSheet('Log');
+  
+  // Init headers jika kosong
+  if (sheetM.getLastRow() === 0) {
+    sheetM.appendRow(['ID','Nama','NIM','Institusi','Jurusan','HP','Terdaftar']);
+  }
+  if (sheetL.getLastRow() === 0) {
+    sheetL.appendRow(['ID','Nama','NIM','Institusi','Jurusan','Waktu','Tanggal','Timestamp']);
+  }
+  
+  if (action === 'register') {
+    const nama = e.parameter.nama;
+    const nim = e.parameter.nim;
+    // Cek NIM duplikat
+    const data = sheetM.getDataRange().getValues();
+    for (let i=1;i<data.length;i++) {
+      if (data[i][2] == nim) {
+        return jsonRes({success:false, message:'NIM sudah terdaftar. ID kamu: ' + data[i][0]});
+      }
+    }
+    const num = sheetM.getLastRow(); // row count = member count
+    const id = 'AMC' + String(num).padStart(4,'0');
+    sheetM.appendRow([id, nama, nim, e.parameter.inst, e.parameter.jurusan, e.parameter.hp, new Date().toLocaleDateString('id-ID')]);
+    return jsonRes({success:true, id:id, nama:nama});
+  }
+  
+  if (action === 'checkin') {
+    const val = e.parameter.value.toUpperCase();
+    const data = sheetM.getDataRange().getValues();
+    let found = null;
+    for (let i=1;i<data.length;i++) {
+      if (data[i][0] === val || String(data[i][2]) === val) { found = data[i]; break; }
+    }
+    if (!found) return jsonRes({success:false, message:'Nomor member / NIM tidak ditemukan.'});
+    const now = new Date();
+    const waktu = Utilities.formatDate(now, 'Asia/Jakarta', 'HH:mm');
+    const tanggal = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy');
+    sheetL.appendRow([found[0], found[1], found[2], found[3], found[4], waktu, tanggal, now.toISOString()]);
+    return jsonRes({success:true, id:found[0], nama:found[1], nim:found[2], inst:found[3], jurusan:found[4]});
+  }
+  
+  if (action === 'getRecentLog') {
+    const today = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy');
+    const data = sheetL.getDataRange().getValues();
+    const rows = [];
+    for (let i=data.length-1; i>=1; i--) {
+      if (data[i][6] === today) {
+        rows.push({id:data[i][0],nama:data[i][1],nim:data[i][2],jurusan:data[i][4],waktu:data[i][5],tanggal:data[i][6]});
+        if (rows.length >= 6) break;
+      }
+    }
+    return jsonRes({data:rows});
+  }
+  
+  if (action === 'getAll') {
+    const mData = sheetM.getDataRange().getValues();
+    const lData = sheetL.getDataRange().getValues();
+    const members = mData.slice(1).map(r=>({id:r[0],nama:r[1],nim:r[2],inst:r[3],jurusan:r[4],hp:r[5]}));
+    const log = lData.slice(1).map(r=>({id:r[0],nama:r[1],nim:r[2],inst:r[3],jurusan:r[4],waktu:r[5],tanggal:r[6],ts:r[7]}));
+    return jsonRes({members, log});
+  }
+  
+  return jsonRes({error:'Unknown action'});
+}
+
+function jsonRes(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+function showScript() {
+  document.getElementById('script-code').textContent = APPS_SCRIPT;
+}
+function copyScript() {
+  navigator.clipboard.writeText(APPS_SCRIPT).then(()=>toast('Script disalin!')).catch(()=>{
+    showScript(); toast('Tampilkan dulu lalu copy manual');
+  });
+}
+
+// Init URL jika sudah tersimpan
+if (SHEET_URL) document.getElementById('sheets-url').value = SHEET_URL;
+</script>
+</body>
+</html>
